@@ -1,0 +1,110 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+}
+//定义config变量
+def config = rootProject.ext
+android {
+    signingConfigs {
+        release {
+
+        }
+    }
+    //导入的方式导入
+    compileSdkVersion config.android.compileSdkVersion
+    buildToolsVersion config.android.buildToolsVersion
+
+    defaultConfig {
+        applicationId config.android.applicationId
+        minSdkVersion config.android.minSdkVersion
+        targetSdkVersion config.android.targetSdkVersion
+        versionCode config.android.versionCode
+        versionName config.android.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        kapt {
+            arguments {
+                arg("AROUTER_MODULE_NAME", project.getName())
+            }
+        }
+    }
+    sourceSets {
+        main {
+            //jni库统一放在libs目录下
+//            jniLibs.srcDir = ['libs']
+            if (isBuildModule.toBoolean()) {
+                //单独运行
+                manifest.srcFile 'src/main/alone/AndroidManifest.xml'
+            } else {
+                //合并到宿主中
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                resources {
+                    //正式版本时.剔除debug文件夹下的所有调式文件
+                    exclude 'src/debug/*'
+                }
+            }
+        }
+    }
+    //开启databinding
+    buildFeatures {
+        dataBinding true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    //3. 依赖包的引入方式，在关键字后面加上 config.dependencies，最后用括号包裹定义的变量名。
+    testImplementation config.androidx["junit"]
+    androidTestImplementation config.androidx["androidx.test.ext-junit"]
+    androidTestImplementation config.androidx["androidx.test.espresso:espresso-core"]
+    //阿里云路由框架
+    kapt config.dependencies["arouter-compiler"]
+    //glide图片加载框架
+    kapt config.dependencies["glide-compiler"]
+
+    //宿主项目中判断组件是否独立运行
+    if (isBuildModule.toBoolean()) {
+        //独立运行时不要其他module,直接依赖基础库
+        implementation project(path: ':library-base')
+
+        implementation config.androidx["kotlin-stdlib"]
+        implementation config.androidx["androidx.core"]
+    } else {
+        //非独立运行时依赖其他业务模块
+        //主业务模块
+        implementation project(path: ':module-main')
+        //首页模块
+        implementation project(path: ':module-home')
+        //社区模块
+        implementation project(path: ':module-community')
+        //更多模块
+        implementation project(path: ':module-more')
+        //视频播放器模块
+        implementation project(path: ':module-player')
+        //用户模块
+        implementation project(path: ':module-user')
+    }
+
+
+
+
+
+
+
+}
