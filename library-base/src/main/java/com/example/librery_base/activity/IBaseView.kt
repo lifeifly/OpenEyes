@@ -10,22 +10,18 @@ package com.example.librery_base.activity
  */
 interface IBaseView {
     /**
-     * 显示内容
+     * 开始加载
      */
-    fun showContent()
+    fun startLoading()
 
     /**
-     * 显示加载提示
+     * 结束加载
      */
-    fun showLoading()
+    fun loadFinish()
+
 
     /**
-     * 显示空页面
+     * 加载错误
      */
-    fun showEmpty()
-
-    /**
-     * 刷新失败
-     */
-    fun showFailure(message:String)
+    fun loadFailed(message:String)
 }

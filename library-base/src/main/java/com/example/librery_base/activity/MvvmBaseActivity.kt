@@ -1,18 +1,17 @@
 package com.example.librery_base.activity
 
-import android.app.Activity
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import com.example.librery_base.loadsir.EmptyCallback
-import com.example.librery_base.loadsir.ErrorCallback
-import com.example.librery_base.loadsir.LoadingCallback
-import com.example.librery_base.utils.ToastUtils
+import com.example.librery_base.eventbus.MsgEvent
+import com.example.librery_base.utils.ShareUtils
 import com.example.librery_base.viewmodel.IMvvmBaseVM
-import com.kingja.loadsir.core.LoadService
-import com.kingja.loadsir.core.LoadSir
+import com.umeng.message.PushAgent
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 /**
  *description : <p>
@@ -22,32 +21,66 @@ import com.kingja.loadsir.core.LoadSir
  *@author : flyli
  *@since :2021/5/19 22
  */
-abstract class MvvmBaseActivity<V:ViewDataBinding,VM:IMvvmBaseVM<Activity>>:AppCompatActivity(),IBaseView {
+abstract class MvvmBaseActivity<V:ViewDataBinding,VM:IMvvmBaseVM<IBaseView>>:AppCompatActivity(),IBaseView {
     //需要绑定的viewmodel
     protected var vm:VM?=null
 
     //需要和viewmodel绑定的databinding
     protected lateinit var viewDataBinding:V
 
-    //加载反馈框架
-    protected var loadService:LoadService<*>?=null
 
+    /**
+     * 判断当前Activity是否在前台。
+     */
+    protected var isActive: Boolean = false
+    /**
+     * 日志输出标志
+     */
+    protected val TAG: String = this.javaClass.simpleName
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "${this.javaClass.simpleName}:onCreate ")
         //初始化viewmodel
         initViewModel()
         //初始化databinding，绑定ui和viewmodel
         performDatading()
+        initView()
+        PushAgent.getInstance(this).onAppStart()
+        //订阅事件
+        EventBus.getDefault().register(this)
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "${this.javaClass.simpleName}:onStart ")
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "${this.javaClass.simpleName}:onResume ")
+        isActive=true
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)//主线程执行订阅方法
+    open fun onMessageEvent(messageEvent:MsgEvent){
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "${this.javaClass.simpleName}:onPause ")
+        isActive=false
+    }
     /**
      * 解除绑定
      */
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(TAG, "${this.javaClass.simpleName}:onDestroy ")
         if (vm!=null&&vm?.isAttachUi()!!){
             vm?.detachUi()
         }
+        EventBus.getDefault().unregister(this)
     }
 
     /**
@@ -76,45 +109,8 @@ abstract class MvvmBaseActivity<V:ViewDataBinding,VM:IMvvmBaseVM<Activity>>:AppC
         }
     }
 
-    /**
-     * 注册loadsir
-     * @param view View 替换视图
-     */
-    fun setLoadSir(view:View){
-        if (loadService==null){
-            //注册重新加载的监听器
-            loadService=LoadSir.getDefault().register(view){v: View? -> onRetryClick() }
-        }
-    }
-    //标记是否显示页面
-    private var isShowContent=false
 
-    override fun showContent() {
-        if (loadService!=null){
-            isShowContent=true
-            loadService?.showSuccess()
-        }
-    }
-
-    override fun showLoading() {
-        if (loadService!=null){
-            loadService?.showCallback(LoadingCallback::class.java)
-        }
-    }
-
-    override fun showEmpty() {
-        if (loadService!=null){
-            loadService?.showCallback(EmptyCallback::class.java)
-        }
-    }
-
-    override fun showFailure(message: String) {
-        if (loadService!=null){
-            loadService?.showCallback(ErrorCallback::class.java)
-        }else{
-            ToastUtils.show(this,message)
-        }
-    }
+    abstract fun initView()
 
     /**
      * 子类创建自己的viewmodel
@@ -138,4 +134,14 @@ abstract class MvvmBaseActivity<V:ViewDataBinding,VM:IMvvmBaseVM<Activity>>:AppC
      * 失败重试
      */
     protected abstract fun onRetryClick()
+
+    /**
+     * 调用系统原生分享
+     *
+     * @param shareContent 分享内容
+     * @param shareType SHARE_MORE=0，SHARE_QQ=1，SHARE_WECHAT=2，SHARE_WEIBO=3，SHARE_QQZONE=4
+     */
+    protected fun share(shareContent: String, shareType: Int) {
+        ShareUtils.share(this, shareContent, shareType)
+    }
 }

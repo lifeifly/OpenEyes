@@ -2,6 +2,7 @@ plugins {
     id 'com.android.library'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -54,8 +55,12 @@ dependencies {
     api 'io.reactivex.rxjava2:rxandroid:2.1.1'
     api 'com.squareup.retrofit2:retrofit:2.9.0'
     api 'com.squareup.retrofit2:converter-gson:2.9.0'
-    api 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    api  'com.squareup.retrofit2:converter-scalars:2.5.0'
     //自身的kotlin依赖，其他顶层模块的kotlin依赖由library-common提供
     implementation rootProject.ext.androidx["kotlin-stdlib"]
     implementation rootProject.ext.androidx["androidx.core"]
+    implementation project(path: ':library-base')
+    api rootProject.ext.androidx["androidx.room"]
+    kapt rootProject.ext.androidx["room-compile"]
+    api rootProject.ext.androidx["room-ktx"]
 }

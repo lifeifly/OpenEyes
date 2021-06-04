@@ -50,5 +50,9 @@ android {
 dependencies {
     //Glide
     implementation rootProject.ext.dependencies["glide"]
+    implementation project(path: ':library-base')
     kapt rootProject.ext.dependencies["glide-compiler"]
+    api rootProject.ext.dependencies["GSYVideoPlayer"]
+    implementation rootProject.ext.androidx["androidx.constraintlayout"]
+
 }

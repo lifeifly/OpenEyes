@@ -3,6 +3,9 @@
     package="com.example.module_user">
 
     <application>
+        <activity android:name=".OpenSourceProjectActivity"></activity>
+        <activity android:name=".AboutActivity" />
+        <activity android:name=".SettingActivity" />
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait" />

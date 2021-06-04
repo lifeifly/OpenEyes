@@ -19,7 +19,7 @@ import android.os.Bundle
  *@author : flyli
  *@since :2021/5/18 22
  */
-open class BaseApplication : Application() {
+open class BaseApplication: Application() {
     companion object {
         private var mInstance: BaseApplication? = null
 

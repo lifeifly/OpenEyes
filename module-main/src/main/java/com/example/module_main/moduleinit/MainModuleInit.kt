@@ -3,12 +3,17 @@
  */
 
 package com.example.module_main.moduleinit
+
+import androidx.work.WorkManager
 import com.example.library_base.base.BaseApplication
 import com.example.library_common.IModuleInit
 import com.example.library_common.adapter.ScreenAutoAdapter
-import com.example.librery_base.loadsir.*
-import com.gyf.immersionbar.ImmersionBar
-import com.kingja.loadsir.core.LoadSir
+import com.example.librery_base.global.preCreateSession
+import com.example.module_main.databinding.DialogAppraiseTipsBinding
+import com.example.module_main.dialog.DialogAppraiseWorker
+import com.example.module_main.ui.SplashActivity
+import com.example.module_main.ui.WebViewActivity
+
 
 /**
  *description : <p>
@@ -22,15 +27,10 @@ class MainModuleInit : IModuleInit {
     override fun onInitAhead(application: BaseApplication): Boolean {
         //初始化屏幕适配
         ScreenAutoAdapter.setUp(application)
-        //初始化LoadSir加载反馈框架
-        LoadSir.beginBuilder()
-            .addCallback(ErrorCallback())//错误回调
-            .addCallback(LoadingCallback())//加载中回调
-            .addCallback(ShimmerCallback())//框架占位回调
-            .addCallback(EmptyCallback())//空页面回调
-            .addCallback(TimeoutCallback())//超时回调
-            .setDefaultCallback(LoadingCallback::class.java)//默认加载中回调
-            .commit()
+        WebViewActivity.DEFAULT_URL.preCreateSession(application)
+        if (!SplashActivity.isFirstEnterApp && DialogAppraiseWorker.isNeedShowDialog) {
+            WorkManager.getInstance(application).enqueue(DialogAppraiseWorker.showDialogRequest)
+        }
         return false
     }
 

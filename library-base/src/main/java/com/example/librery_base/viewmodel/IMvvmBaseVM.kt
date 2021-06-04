@@ -1,6 +1,7 @@
 package com.example.librery_base.viewmodel
 
 import android.view.View
+import com.example.librery_base.activity.IBaseView
 
 /**
  *description : <p>

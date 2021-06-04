@@ -3,12 +3,12 @@ if (isBuildModule.toBoolean()){
     apply plugin: 'com.android.application'
     apply plugin: 'kotlin-android'
     apply plugin: 'kotlin-kapt'
-    apply plugin: 'kotlin-android-extensions'
+    apply plugin: 'kotlin-parcelize'
 }else {
     apply plugin: 'com.android.library'
     apply plugin: 'kotlin-android'
     apply plugin: 'kotlin-kapt'
-    apply plugin: 'kotlin-android-extensions'
+    apply plugin: 'kotlin-parcelize'
 }
 
 def config=rootProject.ext
@@ -62,6 +62,7 @@ android {
     }
     buildFeatures{
         dataBinding true
+        viewBinding  true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

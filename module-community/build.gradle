@@ -4,7 +4,7 @@ android {
 
     defaultConfig {
         if (isBuildModule.toBoolean()){
-            applicationId "com.example.community"
+            applicationId "com.example.module_community"
         }
     }
 }

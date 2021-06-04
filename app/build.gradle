@@ -50,6 +50,7 @@ android {
     //开启databinding
     buildFeatures {
         dataBinding true
+        viewBinding true
     }
     buildTypes {
         release {
@@ -69,6 +70,7 @@ android {
 }
 
 dependencies {
+
     //3. 依赖包的引入方式，在关键字后面加上 config.dependencies，最后用括号包裹定义的变量名。
     testImplementation config.androidx["junit"]
     androidTestImplementation config.androidx["androidx.test.ext-junit"]

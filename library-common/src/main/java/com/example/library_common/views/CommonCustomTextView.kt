@@ -7,8 +7,7 @@ package com.example.library_common.views
 import android.content.Context
 import android.graphics.Typeface
 import android.util.AttributeSet
-import android.view.View
-import android.widget.TextView
+import com.example.library_common.R
 
 /**
  *description : <p>
@@ -26,18 +25,31 @@ class CommonCustomTextView : androidx.appcompat.widget.AppCompatTextView {
         attrs,
         defStyleAttr
     ) {
-        initView(context)
+        attrs?.let {
+            val typeArray=context?.obtainStyledAttributes(it, R.styleable.CommonCustomTextView)
+            val typefaceType=typeArray?.getInt(R.styleable.CommonCustomTextView_typeface,3)
+            initTypeface(typefaceType)
+            typeArray?.recycle()
+        }
+
     }
 
     /**
      * 定制字体
      * @param context Context?
      */
-    private fun initView(context: Context?) {
+    private fun initTypeface(typefaceType: Int?) {
         //获取资源文件
         val assets = context?.assets
         if (assets != null) {
-            val font = Typeface.createFromAsset(assets, "fonts/Lobster-1.4.otf")
+            //获取自定义的字体
+            val font = when(typefaceType){
+                1-> Typeface.createFromAsset(assets, "fonts/FZLanTingHeiS-DB1-GB-Regular.TTF")
+
+                2-> Typeface.createFromAsset(assets, "fonts/FZLanTingHeiS-L-GB-Regular.TTF")
+
+                else -> Typeface.createFromAsset(assets, "fonts/Lobster-1.4.otf")
+            }
             setTypeface(font)
         }
     }
